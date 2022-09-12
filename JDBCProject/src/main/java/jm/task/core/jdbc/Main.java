@@ -13,7 +13,6 @@ import java.sql.SQLException;
 public class Main {
     public static void main(String[] args) throws SQLException {
         // реализуйте алгоритм здесь
-        WrapperConnection nCon =  new WrapperConnection(); //Util.getConnection();
         UserServiceImpl userService = new UserServiceImpl();
         userService.createUsersTable();
         userService.cleanUsersTable();
@@ -22,6 +21,6 @@ public class Main {
         userService.saveUser("Молодая", "Уф Молодая", (byte) 115);
         userService.removeUserById(1);
         userService.getAllUsers();
-        nCon.finallyClose();
+        WrapperConnection.finallyClose();
     }
 }

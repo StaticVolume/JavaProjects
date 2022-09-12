@@ -72,8 +72,7 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void createUsersTable() {
-        try (WrapperConnection jdbcConnection = new WrapperConnection();
-             Statement jdbcStatement = jdbcConnection.createStatement()) {
+        try (Statement jdbcStatement = WrapperConnection.getConnection().createStatement()) {
             jdbcStatement.execute(SQL_CREATE_USERS_TABLE);
             userDaoJDBCLogger.info("Success Create Table Users");
         } catch (SQLException ex) {
@@ -83,8 +82,7 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void dropUsersTable() {
-        try (WrapperConnection jdbcConnection = new WrapperConnection();
-        Statement jdbcStatement = jdbcConnection.createStatement()) {
+        try (Statement jdbcStatement = WrapperConnection.getConnection().createStatement()) {
             jdbcStatement.execute(SQL_DROP_USERS_TABLE);
             userDaoJDBCLogger.info("Success Delete Table Users");
         } catch (SQLException ex) {
@@ -94,8 +92,7 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void saveUser(String name, String lastName, byte age) {
-        try(WrapperConnection jdbcConnection = new WrapperConnection();
-        PreparedStatement jdbcPrepareStatement = jdbcConnection.prepareStatement(SQL_INSERT_USER)) {
+        try(PreparedStatement jdbcPrepareStatement = WrapperConnection.getConnection().prepareStatement(SQL_INSERT_USER)) {
 
             jdbcPrepareStatement.setString(1, name);
             jdbcPrepareStatement.setString(2, lastName);
@@ -122,8 +119,7 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void removeUserById(long id) {
-        try(WrapperConnection jdbcConnection = new WrapperConnection();
-        PreparedStatement jdbcPrepareStatement = jdbcConnection.prepareStatement(SQL_DELETE_BY_ID)) {
+        try(PreparedStatement jdbcPrepareStatement = WrapperConnection.getConnection().prepareStatement(SQL_DELETE_BY_ID)) {
             jdbcPrepareStatement.setLong(1, id);
             jdbcPrepareStatement.executeUpdate();
 
@@ -136,8 +132,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
-        try (WrapperConnection jdbcConnection = new WrapperConnection();
-        Statement jdbcStatement = jdbcConnection.createStatement()) {
+        try (Statement jdbcStatement =WrapperConnection.getConnection().createStatement()) {
             ResultSet resultSet = jdbcStatement.executeQuery(SQL_GET_ALL_USERS);
 
             while (resultSet.next()) {
@@ -157,8 +152,7 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void cleanUsersTable() {
-        try (WrapperConnection jdbcConnection = new WrapperConnection();
-        Statement jdbcStatement = jdbcConnection.createStatement()) {
+        try (Statement jdbcStatement = WrapperConnection.getConnection().createStatement()) {
             int resultSet =jdbcStatement.executeUpdate(SQL_CLEAR_TABLE_USERS);
             userDaoJDBCLogger.info("Deleted " + resultSet + " strings from Users. Table Users clear.");
         } catch (SQLException ex) {

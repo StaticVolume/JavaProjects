@@ -20,7 +20,7 @@ public final class PropertiesUtil {
         return properties.getProperty(key);
     }
     private static void  loadProperties()  {
-        try ( FileReader reader = new FileReader(new File("application.properties"))) {
+        try ( FileReader reader = new FileReader(new File("src/main/resources/application.properties"))) {
             properties.load(reader);
             propertiesLogger.info("Load Properties from application.properties");
         }catch (IOException ex) {

@@ -10,10 +10,12 @@ public final class WrapperConnection implements Connection {
     private static final Connection connection = Util.getConnection();
     private  static final Logger wrapperConnectionLogger = Logger.getLogger(WrapperConnection.class.getName());
 
-    public WrapperConnection() {
+    private WrapperConnection() {
     }
-
-    public void finallyClose() throws SQLException { /** нам нужен этот метод для окончательного закрытия соединения*/
+    public static Connection getConnection() {
+        return connection;
+    }
+    public static void finallyClose() throws SQLException { /** нам нужен этот метод для окончательного закрытия соединения*/
         wrapperConnectionLogger.info("Closing WrapperConnection...OK");
         connection.close();
     }
