@@ -109,6 +109,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void saveUser(String name, String lastName, byte age) {
         try(PreparedStatement jdbcPrepareStatement = jdbcConnect.prepareStatement(SQL_INSERT_USER)) {
+            
             jdbcPrepareStatement.setString(1, name);
             jdbcPrepareStatement.setString(2, lastName);
             jdbcPrepareStatement.setByte(3, age);
@@ -131,48 +132,43 @@ public class UserDaoJDBCImpl implements UserDao {
                             .toString()
             );
         } catch (SQLException ex) {
+
             userDaoJDBCLogger.log(Level.SEVERE, ex.getMessage(), ex);
             if (jdbcConnect != null) {
                 try {
                     jdbcConnect.rollback();
                 } catch (SQLException rollback) {
+
                     userDaoJDBCLogger.log(Level.SEVERE, rollback.getMessage(), rollback);
                     throw new RuntimeException(rollback);
+
                 }
             }
+
             throw new RuntimeException();
         }
     }
 
     public void removeUserById(long id) {
         try(PreparedStatement jdbcPrepareStatement = jdbcConnect.prepareStatement(SQL_DELETE_BY_ID)) {
-            jdbcPrepareStatement.setLong(1, id);
-            jdbcConnect.setAutoCommit(false);
 
+            jdbcPrepareStatement.setLong(1, id);
             jdbcPrepareStatement.executeUpdate();
-            jdbcConnect.commit();
 
             userDaoJDBCLogger.info("User with id = " + id + " was deleted , if id will exist");
         } catch (SQLException ex) {
+
             userDaoJDBCLogger.log(Level.SEVERE, ex.getMessage(), ex);
-            if (jdbcConnect != null) {
-                try {
-                    jdbcConnect.rollback();
-                } catch (SQLException rollback) {
-                    userDaoJDBCLogger.log(Level.SEVERE,rollback.getMessage(),rollback);
-                    throw new RuntimeException(rollback);
-                }
-            }
             throw new RuntimeException(ex);
+
         }
     }
 
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
         try (Statement jdbcStatement = jdbcConnect.createStatement()) {
-            jdbcConnect.setAutoCommit(false);
+
             ResultSet resultSet = jdbcStatement.executeQuery(SQL_GET_ALL_USERS);
-            jdbcConnect.commit();
 
             while (resultSet.next()) {
                 users.add(
@@ -184,22 +180,17 @@ public class UserDaoJDBCImpl implements UserDao {
             }
             userDaoJDBCLogger.info("Create List<User> : " + users);
         } catch (SQLException ex) {
+
             userDaoJDBCLogger.log(Level.SEVERE, ex.getMessage(),ex);
-            if (jdbcConnect != null) {
-                try{
-                    jdbcConnect.rollback();
-                } catch (SQLException rollback) {
-                    userDaoJDBCLogger.log(Level.SEVERE, rollback.getMessage(),rollback);
-                    throw new RuntimeException(rollback);
-                }
-            }
             throw new RuntimeException(ex);
+
         }
         return users;
     }
 
     public void cleanUsersTable() {
         try (Statement jdbcStatement = jdbcConnect.createStatement()) {
+
             jdbcConnect.setAutoCommit(false);
             int resultSet =jdbcStatement.executeUpdate(SQL_CLEAR_TABLE_USERS);
             jdbcConnect.commit();
