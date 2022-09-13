@@ -2,13 +2,13 @@ package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
-import jm.task.core.jdbc.util.WrapperConnection;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /** Считается, что DAO - Data Access Object должен быть реализован
  *  с использованием паттерна проектирования Singleton
@@ -21,11 +21,9 @@ public class UserDaoJDBCImpl implements UserDao {
     private static final Logger userDaoJDBCLogger = Logger.getLogger(UserDaoJDBCImpl.class.getName());
     private static final UserDaoJDBCImpl instance = new UserDaoJDBCImpl(); // первое требование Singleton
 
-    /**Все запросы к базе данных будем создавать в виде private констант */
+    private final Connection jdbcConnect;
 
-//    private static final String SQL_CREATE_SCHEMA = """ // запросик на создание схемы, сейчас не актуален.
-//            CREATE SCHEMA IF NOT EXISTS users_schema;
-//            """;
+    /**Все запросы к базе данных будем создавать в виде private констант */
     private static final String SQL_CREATE_USERS_TABLE = """
             CREATE TABLE IF NOT EXISTS Users (
             id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -56,6 +54,7 @@ public class UserDaoJDBCImpl implements UserDao {
             FROM Users;
             """;
     private UserDaoJDBCImpl() { // private constructor - 2 требование к Singleton
+        jdbcConnect = Util.getConnection();
 
     }
 
@@ -65,11 +64,10 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void createUsersTable() {
-        Connection jdbcConnect = null;
         Statement jdbcStatement = null;
 
         try {
-            jdbcConnect = new WrapperConnection();
+
             jdbcStatement = jdbcConnect.createStatement();
             jdbcConnect.setAutoCommit(false);
 
@@ -89,14 +87,6 @@ public class UserDaoJDBCImpl implements UserDao {
             }
             throw new RuntimeException(ex);
         } finally {
-            if (jdbcConnect != null) {
-                try {
-                    jdbcConnect.close();
-                } catch (SQLException conClose) {
-                    userDaoJDBCLogger.log(Level.SEVERE, conClose.getMessage(), conClose);
-                    throw new RuntimeException(conClose);
-                }
-            }
             if (jdbcStatement != null) {
                 try {
                     jdbcStatement.close();
@@ -109,11 +99,10 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void dropUsersTable() {
-        Connection jdbcConnect = null;
+
         Statement jdbcStatement = null;
 
         try {
-            jdbcConnect = new WrapperConnection();
             jdbcStatement = jdbcConnect.createStatement();
             jdbcConnect.setAutoCommit(false);
 
@@ -133,14 +122,6 @@ public class UserDaoJDBCImpl implements UserDao {
             }
             throw new RuntimeException(ex);
         } finally {
-            if (jdbcConnect != null) {
-                try {
-                    jdbcConnect.close();
-                } catch (SQLException conClose) {
-                    userDaoJDBCLogger.log(Level.SEVERE, conClose.getMessage(), conClose);
-                    throw new RuntimeException(conClose);
-                }
-            }
             if (jdbcStatement != null) {
                 try {
                     jdbcStatement.close();
@@ -153,10 +134,8 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void saveUser(String name, String lastName, byte age) {
-        Connection jdbcConnect = null;
         PreparedStatement jdbcPrepareStatement = null;
         try{
-            jdbcConnect = new WrapperConnection();
             jdbcPrepareStatement = jdbcConnect.prepareStatement(SQL_INSERT_USER);
             jdbcPrepareStatement.setString(1, name);
             jdbcPrepareStatement.setString(2, lastName);
@@ -191,14 +170,6 @@ public class UserDaoJDBCImpl implements UserDao {
             }
             throw new RuntimeException();
         } finally {
-            if (jdbcConnect != null) {
-                try {
-                    jdbcConnect.close();
-                } catch (SQLException conClose) {
-                    userDaoJDBCLogger.log(Level.SEVERE,conClose.getMessage(),conClose);
-                    throw new RuntimeException(conClose);
-                }
-            }
             if (jdbcPrepareStatement != null) {
                 try {
                     jdbcPrepareStatement.close();
@@ -210,10 +181,8 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void removeUserById(long id) {
-        Connection jdbcConnect  = null;
         PreparedStatement jdbcPrepareStatement = null;
         try{
-            jdbcConnect = new WrapperConnection();
             jdbcPrepareStatement = jdbcConnect.prepareStatement(SQL_DELETE_BY_ID);
             jdbcPrepareStatement.setLong(1, id);
             jdbcConnect.setAutoCommit(false);
@@ -234,14 +203,6 @@ public class UserDaoJDBCImpl implements UserDao {
             }
             throw new RuntimeException(ex);
         } finally {
-            if (jdbcConnect != null) {
-                try {
-                    jdbcConnect.close();
-                } catch (SQLException conClose) {
-                    userDaoJDBCLogger.log(Level.SEVERE, conClose.getMessage(),conClose);
-                    throw  new RuntimeException(conClose);
-                }
-            }
             if (jdbcPrepareStatement != null) {
                 try {
                     jdbcPrepareStatement.close();
@@ -255,10 +216,8 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
-        Connection jdbcConnect = null;
         Statement jdbcStatement = null;
         try {
-            jdbcConnect = new WrapperConnection();
             jdbcStatement =jdbcConnect.createStatement();
 
             jdbcConnect.setAutoCommit(false);
@@ -286,14 +245,6 @@ public class UserDaoJDBCImpl implements UserDao {
             }
             throw new RuntimeException(ex);
         } finally {
-            if (jdbcConnect != null) {
-                try {
-                    jdbcConnect.close();
-                } catch (SQLException conClose) {
-                    userDaoJDBCLogger.log(Level.SEVERE, conClose.getMessage(), conClose);
-                    throw new RuntimeException(conClose);
-                }
-            }
             if (jdbcStatement != null) {
                 try {
                     jdbcStatement.close();
@@ -307,10 +258,8 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void cleanUsersTable() {
-        Connection jdbcConnect = null;
         Statement jdbcStatement = null;
         try {
-            jdbcConnect = new WrapperConnection();
             jdbcStatement = jdbcConnect.createStatement();
 
             jdbcConnect.setAutoCommit(false);
@@ -330,14 +279,6 @@ public class UserDaoJDBCImpl implements UserDao {
             }
             throw new RuntimeException(ex);
         } finally {
-            if (jdbcConnect != null) {
-                try{
-                    jdbcConnect.close();
-                } catch (SQLException conClose) {
-                    userDaoJDBCLogger.log(Level.SEVERE, conClose.getMessage(),conClose);
-                    throw new RuntimeException(conClose);
-                }
-            }
             if (jdbcStatement != null) {
                 try {
                     jdbcStatement.close();

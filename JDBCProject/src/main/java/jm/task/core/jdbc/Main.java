@@ -2,11 +2,7 @@ package jm.task.core.jdbc;
 
 import jm.task.core.jdbc.service.UserService;
 import jm.task.core.jdbc.service.UserServiceImpl;
-import jm.task.core.jdbc.util.PropertiesUtil;
-import jm.task.core.jdbc.util.Util;
-import jm.task.core.jdbc.util.WrapperConnection;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
 /**В решении задания могу навязчиво использовать паттерны проектирования.
@@ -27,6 +23,5 @@ public class Main {
         userService.saveUser("Молодая", "Уф Молодая", (byte) 115);
         userService.removeUserById(1);
         userService.getAllUsers();
-        WrapperConnection.finallyClose();
     }
 }
