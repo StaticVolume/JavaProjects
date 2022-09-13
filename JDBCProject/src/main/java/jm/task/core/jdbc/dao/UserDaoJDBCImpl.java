@@ -64,11 +64,7 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void createUsersTable() {
-        Statement jdbcStatement = null;
-
-        try {
-
-            jdbcStatement = jdbcConnect.createStatement();
+        try (Statement jdbcStatement = jdbcConnect.createStatement();) {
             jdbcConnect.setAutoCommit(false);
 
             jdbcStatement.execute(SQL_CREATE_USERS_TABLE);
@@ -86,24 +82,11 @@ public class UserDaoJDBCImpl implements UserDao {
                 }
             }
             throw new RuntimeException(ex);
-        } finally {
-            if (jdbcStatement != null) {
-                try {
-                    jdbcStatement.close();
-                } catch (SQLException stateClose) {
-                    userDaoJDBCLogger.log(Level.SEVERE, stateClose.getMessage(), stateClose);
-                    throw new RuntimeException(stateClose);
-                }
-            }
         }
     }
 
     public void dropUsersTable() {
-
-        Statement jdbcStatement = null;
-
-        try {
-            jdbcStatement = jdbcConnect.createStatement();
+        try (Statement jdbcStatement = jdbcConnect.createStatement()) {
             jdbcConnect.setAutoCommit(false);
 
             jdbcStatement.execute(SQL_DROP_USERS_TABLE);
@@ -121,22 +104,11 @@ public class UserDaoJDBCImpl implements UserDao {
                 }
             }
             throw new RuntimeException(ex);
-        } finally {
-            if (jdbcStatement != null) {
-                try {
-                    jdbcStatement.close();
-                } catch (SQLException stateClose) {
-                    userDaoJDBCLogger.log(Level.SEVERE, stateClose.getMessage(),stateClose);
-                    throw new RuntimeException(stateClose);
-                }
-            }
         }
     }
 
     public void saveUser(String name, String lastName, byte age) {
-        PreparedStatement jdbcPrepareStatement = null;
-        try{
-            jdbcPrepareStatement = jdbcConnect.prepareStatement(SQL_INSERT_USER);
+        try(PreparedStatement jdbcPrepareStatement = jdbcConnect.prepareStatement(SQL_INSERT_USER)){
             jdbcPrepareStatement.setString(1, name);
             jdbcPrepareStatement.setString(2, lastName);
             jdbcPrepareStatement.setByte(3, age);
@@ -169,21 +141,11 @@ public class UserDaoJDBCImpl implements UserDao {
                 }
             }
             throw new RuntimeException();
-        } finally {
-            if (jdbcPrepareStatement != null) {
-                try {
-                    jdbcPrepareStatement.close();
-                } catch (SQLException prepStateClose) {
-                    userDaoJDBCLogger.log(Level.SEVERE, prepStateClose.getMessage(), prepStateClose);
-                }
-            }
         }
     }
 
     public void removeUserById(long id) {
-        PreparedStatement jdbcPrepareStatement = null;
-        try{
-            jdbcPrepareStatement = jdbcConnect.prepareStatement(SQL_DELETE_BY_ID);
+        try(PreparedStatement jdbcPrepareStatement = jdbcConnect.prepareStatement(SQL_DELETE_BY_ID)) {
             jdbcPrepareStatement.setLong(1, id);
             jdbcConnect.setAutoCommit(false);
 
@@ -202,24 +164,12 @@ public class UserDaoJDBCImpl implements UserDao {
                 }
             }
             throw new RuntimeException(ex);
-        } finally {
-            if (jdbcPrepareStatement != null) {
-                try {
-                    jdbcPrepareStatement.close();
-                } catch (SQLException prepStateClose) {
-                    userDaoJDBCLogger.log(Level.SEVERE, prepStateClose.getMessage(),prepStateClose);
-                    throw  new RuntimeException(prepStateClose);
-                }
-            }
         }
     }
 
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
-        Statement jdbcStatement = null;
-        try {
-            jdbcStatement =jdbcConnect.createStatement();
-
+        try (Statement jdbcStatement = jdbcConnect.createStatement()) {
             jdbcConnect.setAutoCommit(false);
             ResultSet resultSet = jdbcStatement.executeQuery(SQL_GET_ALL_USERS);
             jdbcConnect.commit();
@@ -244,24 +194,12 @@ public class UserDaoJDBCImpl implements UserDao {
                 }
             }
             throw new RuntimeException(ex);
-        } finally {
-            if (jdbcStatement != null) {
-                try {
-                    jdbcStatement.close();
-                } catch (SQLException stateClose) {
-                    userDaoJDBCLogger.log(Level.SEVERE, stateClose.getMessage(),stateClose);
-                    throw new RuntimeException(stateClose);
-                }
-            }
         }
         return users;
     }
 
     public void cleanUsersTable() {
-        Statement jdbcStatement = null;
-        try {
-            jdbcStatement = jdbcConnect.createStatement();
-
+        try ( Statement jdbcStatement = jdbcConnect.createStatement()) {
             jdbcConnect.setAutoCommit(false);
             int resultSet =jdbcStatement.executeUpdate(SQL_CLEAR_TABLE_USERS);
             jdbcConnect.commit();
@@ -278,15 +216,6 @@ public class UserDaoJDBCImpl implements UserDao {
                 }
             }
             throw new RuntimeException(ex);
-        } finally {
-            if (jdbcStatement != null) {
-                try {
-                    jdbcStatement.close();
-                } catch (SQLException stateClose) {
-                    userDaoJDBCLogger.log(Level.SEVERE, stateClose.getMessage(),stateClose);
-                    throw new RuntimeException(stateClose);
-                }
-            }
         }
     }
 }
