@@ -6,11 +6,15 @@ import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+/** Данный класс призван избавить программу от проблемы, из - за которой
+ * постоянно создается и уничтожается соедиение с базой данных, так как
+ * операция создания и удаления очень ресурсозатратная
+ * Единственное не совсем уверен, что он правильно работает :D, но вроде работает*/
 public final class WrapperConnection implements Connection {
     private static final Connection connection = Util.getConnection();
     private  static final Logger wrapperConnectionLogger = Logger.getLogger(WrapperConnection.class.getName());
 
-    private WrapperConnection() {
+    public WrapperConnection() {
     }
     public static Connection getConnection() {
         return connection;

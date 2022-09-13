@@ -12,8 +12,12 @@ import java.util.logging.Logger;
 
 /** Считается, что DAO - Data Access Object должен быть реализован
  *  с использованием паттерна проектирования Singleton
- *  Пытаюсь его так и реализовать*/
+ *  Пытаюсь его так и реализовать
+ *  Проблема - много методов с однотипным кодом, возможное решение :
+ *  Вывести дублируюмый код в отдельный метод. Но присутствует разница в обьектах Statement и PrepareStatement
+ * */
 public class UserDaoJDBCImpl implements UserDao {
+
     private static final Logger userDaoJDBCLogger = Logger.getLogger(UserDaoJDBCImpl.class.getName());
     private static final UserDaoJDBCImpl instance = new UserDaoJDBCImpl(); // первое требование Singleton
 
@@ -23,13 +27,13 @@ public class UserDaoJDBCImpl implements UserDao {
 //            CREATE SCHEMA IF NOT EXISTS users_schema;
 //            """;
     private static final String SQL_CREATE_USERS_TABLE = """
-               CREATE TABLE IF NOT EXISTS Users (
-               id BIGINT AUTO_INCREMENT PRIMARY KEY,
-               firstname VARCHAR(128) NOT NULL,
-               lastname VARCHAR(128) NOT NULL,
-               age TINYINT NOT NULL
-               );
-               """;
+            CREATE TABLE IF NOT EXISTS Users (
+            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            firstname VARCHAR(128) NOT NULL,
+            lastname VARCHAR(128) NOT NULL,
+            age TINYINT NOT NULL
+            );
+            """;
     private static final String SQL_DROP_USERS_TABLE = """
             DROP TABLE IF EXISTS Users
             """;
@@ -54,110 +58,294 @@ public class UserDaoJDBCImpl implements UserDao {
     private UserDaoJDBCImpl() { // private constructor - 2 требование к Singleton
 
     }
-//    public static void createUsersSchema() { // можно реализовать создание схемы с нуля, но для норм работы нужно
-//    будет прописывать базу данных в конфиг, может быть сделаю это в след. раз.
 
-//        try(Connection jdbcConnect = Util.getConnection();
-//        Statement jdbcState = jdbcConnect.createStatement()){
-//            jdbcState.execute(SQL_CREATE_SCHEMA);
-//            userDaoJDBCLogger.info("Create SCHEMA users_schema");
-//        } catch (SQLException ex) {
-//            userDaoJDBCLogger.log(Level.SEVERE, ex.getMessage(), ex);
-//            throw new RuntimeException(ex);
-//        }
-//    }
     public static UserDaoJDBCImpl getInstance() { // static method с данным функционалом - 3 требование Singleton
 
         return instance != null ? instance : new UserDaoJDBCImpl();
     }
 
     public void createUsersTable() {
-        try (Statement jdbcStatement = WrapperConnection.getConnection().createStatement()) {
+        Connection jdbcConnect = null;
+        Statement jdbcStatement = null;
+
+        try {
+            jdbcConnect = new WrapperConnection();
+            jdbcStatement = jdbcConnect.createStatement();
+            jdbcConnect.setAutoCommit(false);
+
             jdbcStatement.execute(SQL_CREATE_USERS_TABLE);
+            jdbcConnect.commit();
+
             userDaoJDBCLogger.info("Success Create Table Users");
         } catch (SQLException ex) {
             userDaoJDBCLogger.log(Level.SEVERE, ex.getMessage(), ex);
+            if (jdbcConnect != null) {
+                try {
+                    jdbcConnect.rollback();
+                } catch (SQLException rollback) {
+                    userDaoJDBCLogger.log(Level.SEVERE,rollback.getMessage(),rollback);
+                    throw new RuntimeException(rollback);
+                }
+            }
             throw new RuntimeException(ex);
+        } finally {
+            if (jdbcConnect != null) {
+                try {
+                    jdbcConnect.close();
+                } catch (SQLException conClose) {
+                    userDaoJDBCLogger.log(Level.SEVERE, conClose.getMessage(), conClose);
+                    throw new RuntimeException(conClose);
+                }
+            }
+            if (jdbcStatement != null) {
+                try {
+                    jdbcStatement.close();
+                } catch (SQLException stateClose) {
+                    userDaoJDBCLogger.log(Level.SEVERE, stateClose.getMessage(), stateClose);
+                    throw new RuntimeException(stateClose);
+                }
+            }
         }
     }
 
     public void dropUsersTable() {
-        try (Statement jdbcStatement = WrapperConnection.getConnection().createStatement()) {
+        Connection jdbcConnect = null;
+        Statement jdbcStatement = null;
+
+        try {
+            jdbcConnect = new WrapperConnection();
+            jdbcStatement = jdbcConnect.createStatement();
+            jdbcConnect.setAutoCommit(false);
+
             jdbcStatement.execute(SQL_DROP_USERS_TABLE);
+            jdbcConnect.commit();
+
             userDaoJDBCLogger.info("Success Delete Table Users");
         } catch (SQLException ex) {
             userDaoJDBCLogger.log(Level.SEVERE, ex.getMessage(), ex);
+            if (jdbcConnect != null) {
+                try {
+                    jdbcConnect.rollback();
+                } catch (SQLException rollback) {
+                    userDaoJDBCLogger.log(Level.SEVERE,rollback.getMessage(),rollback);
+                    throw new RuntimeException(rollback);
+                }
+            }
             throw new RuntimeException(ex);
+        } finally {
+            if (jdbcConnect != null) {
+                try {
+                    jdbcConnect.close();
+                } catch (SQLException conClose) {
+                    userDaoJDBCLogger.log(Level.SEVERE, conClose.getMessage(), conClose);
+                    throw new RuntimeException(conClose);
+                }
+            }
+            if (jdbcStatement != null) {
+                try {
+                    jdbcStatement.close();
+                } catch (SQLException stateClose) {
+                    userDaoJDBCLogger.log(Level.SEVERE, stateClose.getMessage(),stateClose);
+                    throw new RuntimeException(stateClose);
+                }
+            }
         }
     }
 
     public void saveUser(String name, String lastName, byte age) {
-        try(PreparedStatement jdbcPrepareStatement = WrapperConnection.getConnection().prepareStatement(SQL_INSERT_USER)) {
-
+        Connection jdbcConnect = null;
+        PreparedStatement jdbcPrepareStatement = null;
+        try{
+            jdbcConnect = new WrapperConnection();
+            jdbcPrepareStatement = jdbcConnect.prepareStatement(SQL_INSERT_USER);
             jdbcPrepareStatement.setString(1, name);
             jdbcPrepareStatement.setString(2, lastName);
             jdbcPrepareStatement.setByte(3, age);
+
+            jdbcConnect.setAutoCommit(false);
             int resultSet = jdbcPrepareStatement.executeUpdate();
+            jdbcConnect.commit();
 
             StringBuilder log = new StringBuilder();
             userDaoJDBCLogger.info(
-                 log.append("Updated ")
-                         .append(resultSet)
-                         .append(" strings, User with name : ")
-                         .append(name)
-                         .append(" , lastname : ")
-                         .append(lastName)
-                         .append(" , age : ")
-                         .append(age)
-                         .append(" added to Users Table")
-                         .toString()
+                    log.append("Updated ")
+                            .append(resultSet)
+                            .append(" strings, User with name : ")
+                            .append(name)
+                            .append(" , lastname : ")
+                            .append(lastName)
+                            .append(" , age : ")
+                            .append(age)
+                            .append(" added to Users Table")
+                            .toString()
             );
         } catch (SQLException ex) {
             userDaoJDBCLogger.log(Level.SEVERE, ex.getMessage(), ex);
+            if (jdbcConnect != null) {
+                try {
+                    jdbcConnect.rollback();
+                } catch (SQLException rollback) {
+                    userDaoJDBCLogger.log(Level.SEVERE, rollback.getMessage(), rollback);
+                    throw new RuntimeException(rollback);
+                }
+            }
             throw new RuntimeException();
+        } finally {
+            if (jdbcConnect != null) {
+                try {
+                    jdbcConnect.close();
+                } catch (SQLException conClose) {
+                    userDaoJDBCLogger.log(Level.SEVERE,conClose.getMessage(),conClose);
+                    throw new RuntimeException(conClose);
+                }
+            }
+            if (jdbcPrepareStatement != null) {
+                try {
+                    jdbcPrepareStatement.close();
+                } catch (SQLException prepStateClose) {
+                    userDaoJDBCLogger.log(Level.SEVERE, prepStateClose.getMessage(), prepStateClose);
+                }
+            }
         }
     }
 
     public void removeUserById(long id) {
-        try(PreparedStatement jdbcPrepareStatement = WrapperConnection.getConnection().prepareStatement(SQL_DELETE_BY_ID)) {
+        Connection jdbcConnect  = null;
+        PreparedStatement jdbcPrepareStatement = null;
+        try{
+            jdbcConnect = new WrapperConnection();
+            jdbcPrepareStatement = jdbcConnect.prepareStatement(SQL_DELETE_BY_ID);
             jdbcPrepareStatement.setLong(1, id);
+            jdbcConnect.setAutoCommit(false);
+
             jdbcPrepareStatement.executeUpdate();
+            jdbcConnect.commit();
 
             userDaoJDBCLogger.info("User with id = " + id + " was deleted , if id will exist");
         } catch (SQLException ex) {
             userDaoJDBCLogger.log(Level.SEVERE, ex.getMessage(), ex);
+            if (jdbcConnect != null) {
+                try {
+                    jdbcConnect.rollback();
+                } catch (SQLException rollback) {
+                    userDaoJDBCLogger.log(Level.SEVERE,rollback.getMessage(),rollback);
+                    throw new RuntimeException(rollback);
+                }
+            }
             throw new RuntimeException(ex);
+        } finally {
+            if (jdbcConnect != null) {
+                try {
+                    jdbcConnect.close();
+                } catch (SQLException conClose) {
+                    userDaoJDBCLogger.log(Level.SEVERE, conClose.getMessage(),conClose);
+                    throw  new RuntimeException(conClose);
+                }
+            }
+            if (jdbcPrepareStatement != null) {
+                try {
+                    jdbcPrepareStatement.close();
+                } catch (SQLException prepStateClose) {
+                    userDaoJDBCLogger.log(Level.SEVERE, prepStateClose.getMessage(),prepStateClose);
+                    throw  new RuntimeException(prepStateClose);
+                }
+            }
         }
     }
 
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
-        try (Statement jdbcStatement =WrapperConnection.getConnection().createStatement()) {
+        Connection jdbcConnect = null;
+        Statement jdbcStatement = null;
+        try {
+            jdbcConnect = new WrapperConnection();
+            jdbcStatement =jdbcConnect.createStatement();
+
+            jdbcConnect.setAutoCommit(false);
             ResultSet resultSet = jdbcStatement.executeQuery(SQL_GET_ALL_USERS);
+            jdbcConnect.commit();
 
             while (resultSet.next()) {
-               users.add(
-                       new User (
-                               resultSet.getString("firstname"),
-                               resultSet.getString("lastname"),
-                               resultSet.getByte("age"))
-                       );
+                users.add(
+                        new User (
+                                resultSet.getString("firstname"),
+                                resultSet.getString("lastname"),
+                                resultSet.getByte("age"))
+                );
             }
-
             userDaoJDBCLogger.info("Create List<User> : " + users);
         } catch (SQLException ex) {
             userDaoJDBCLogger.log(Level.SEVERE, ex.getMessage(),ex);
+            if (jdbcConnect != null) {
+                try{
+                    jdbcConnect.rollback();
+                } catch (SQLException rollback) {
+                    userDaoJDBCLogger.log(Level.SEVERE, rollback.getMessage(),rollback);
+                    throw new RuntimeException(rollback);
+                }
+            }
+            throw new RuntimeException(ex);
+        } finally {
+            if (jdbcConnect != null) {
+                try {
+                    jdbcConnect.close();
+                } catch (SQLException conClose) {
+                    userDaoJDBCLogger.log(Level.SEVERE, conClose.getMessage(), conClose);
+                    throw new RuntimeException(conClose);
+                }
+            }
+            if (jdbcStatement != null) {
+                try {
+                    jdbcStatement.close();
+                } catch (SQLException stateClose) {
+                    userDaoJDBCLogger.log(Level.SEVERE, stateClose.getMessage(),stateClose);
+                    throw new RuntimeException(stateClose);
+                }
+            }
         }
         return users;
     }
 
     public void cleanUsersTable() {
-        try (Statement jdbcStatement = WrapperConnection.getConnection().createStatement()) {
+        Connection jdbcConnect = null;
+        Statement jdbcStatement = null;
+        try {
+            jdbcConnect = new WrapperConnection();
+            jdbcStatement = jdbcConnect.createStatement();
+
+            jdbcConnect.setAutoCommit(false);
             int resultSet =jdbcStatement.executeUpdate(SQL_CLEAR_TABLE_USERS);
+            jdbcConnect.commit();
+
             userDaoJDBCLogger.info("Deleted " + resultSet + " strings from Users. Table Users clear.");
         } catch (SQLException ex) {
             userDaoJDBCLogger.log(Level.SEVERE, ex.getMessage(), ex);
+            if (jdbcConnect != null) {
+                try{
+                    jdbcConnect.rollback();
+                } catch (SQLException rollback) {
+                    userDaoJDBCLogger.log(Level.SEVERE, rollback.getMessage(), rollback);
+                    throw new RuntimeException(rollback);
+                }
+            }
             throw new RuntimeException(ex);
+        } finally {
+            if (jdbcConnect != null) {
+                try{
+                    jdbcConnect.close();
+                } catch (SQLException conClose) {
+                    userDaoJDBCLogger.log(Level.SEVERE, conClose.getMessage(),conClose);
+                    throw new RuntimeException(conClose);
+                }
+            }
+            if (jdbcStatement != null) {
+                try {
+                    jdbcStatement.close();
+                } catch (SQLException stateClose) {
+                    userDaoJDBCLogger.log(Level.SEVERE, stateClose.getMessage(),stateClose);
+                    throw new RuntimeException(stateClose);
+                }
+            }
         }
     }
 }

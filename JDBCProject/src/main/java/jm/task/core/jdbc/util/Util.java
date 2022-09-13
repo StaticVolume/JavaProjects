@@ -21,11 +21,6 @@ public final class Util {
     private static final String DBPASSWORD = "db.password";
     private static final String DBURL = "db.url";
 
-
-//    static { // используем статик блок по причине того, что он выпонляется всего 1 при загрузке
-//        CreateConnection();
-//    }
-
     private Util () { // закрываем возможность создавать экземпляры класса
 
     }
