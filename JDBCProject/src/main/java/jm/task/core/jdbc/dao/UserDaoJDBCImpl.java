@@ -64,7 +64,7 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void createUsersTable() {
-        try (Statement jdbcStatement = jdbcConnect.createStatement();) {
+        try (Statement jdbcStatement = jdbcConnect.createStatement()) {
             jdbcConnect.setAutoCommit(false);
 
             jdbcStatement.execute(SQL_CREATE_USERS_TABLE);
@@ -108,7 +108,7 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void saveUser(String name, String lastName, byte age) {
-        try(PreparedStatement jdbcPrepareStatement = jdbcConnect.prepareStatement(SQL_INSERT_USER)){
+        try(PreparedStatement jdbcPrepareStatement = jdbcConnect.prepareStatement(SQL_INSERT_USER)) {
             jdbcPrepareStatement.setString(1, name);
             jdbcPrepareStatement.setString(2, lastName);
             jdbcPrepareStatement.setByte(3, age);
@@ -199,7 +199,7 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void cleanUsersTable() {
-        try ( Statement jdbcStatement = jdbcConnect.createStatement()) {
+        try (Statement jdbcStatement = jdbcConnect.createStatement()) {
             jdbcConnect.setAutoCommit(false);
             int resultSet =jdbcStatement.executeUpdate(SQL_CLEAR_TABLE_USERS);
             jdbcConnect.commit();
