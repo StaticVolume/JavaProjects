@@ -14,14 +14,11 @@ import java.util.logging.Logger;
 
 /** Пробую реализовать dbConnectionManager
  * с использованием данных из конфиругационного файла
- * Возможно создам класс-обертку с переопределенным методом close(), чтобы не закрывать соединение до самого конца
- * программы, так как операция не из дешевых.
- *Сделал, но не уверен, что сделал правильно*/
+ */
 
 public final class Util {
     // реализуйте настройку соеденения с БД
     private static Connection dbConnection;
-
     private static SessionFactory sessionFactory;
 
     /**********************************************/
@@ -29,7 +26,7 @@ public final class Util {
     private static final String DBUSERNAME_KEY = "hibernate.connection.username";
     private static final String DBPASSWORD_KEY = "hibernate.connection.password";
     private static final String DBURL_KEY = "hibernate.connection.url";
-    
+
     /*************************************************/
     private Util () { // закрываем возможность создавать экземпляры класса
 
@@ -90,20 +87,5 @@ public final class Util {
 
     public static String getDbUrl() {
         return DBURL_KEY;
-    }
-
-    public static String getHibernateConnectionClassDriverKey() {
-        return  HIBERNATE_CONNECTION_CLASS_DRIVER_KEY;
-    }
-    public static String getHibernateDialectKey() {
-        return HIBERNATE_DIALECT_KEY;
-    }
-    public static String getHibernateCurrentSessionContextKey() {
-        return HIBERNATE_CURRENT_SESSION_CONTEXT_KEY;
-    }
-    public static Boolean getHibernateShowSqlKey() {
-
-        return Boolean.valueOf(PropertiesUtil.getByKey(HIBERNATE_SHOW_SQL_KEY));
-
     }
 }
