@@ -2,7 +2,6 @@ package jm.task.core.jdbc;
 
 import jm.task.core.jdbc.service.UserService;
 import jm.task.core.jdbc.service.UserServiceImpl;
-import org.hibernate.cfg.Configuration;
 
 import java.sql.SQLException;
 
@@ -17,12 +16,14 @@ public class Main {
     public static void main(String[] args) throws SQLException {
         // реализуйте алгоритм здесь
         UserService userService = new UserServiceImpl();
+        userService.dropUsersTable();
         userService.createUsersTable();
-        userService.cleanUsersTable();
-        userService.saveUser("Данила", "Ваткин", (byte) 10);
-        userService.saveUser("Иван", "Иваныч", (byte) 15);
-        userService.saveUser("Молодая", "Уф Молодая", (byte) 115);
-        userService.removeUserById(1);
-        userService.getAllUsers();
+
+//        userService.cleanUsersTable();
+//        userService.saveUser("Данила", "Ваткин", (byte) 10);
+//        userService.saveUser("Иван", "Иваныч", (byte) 15);
+//        userService.saveUser("Молодая", "Уф Молодая", (byte) 115);
+//        userService.removeUserById(1);
+//        userService.getAllUsers();
     }
 }

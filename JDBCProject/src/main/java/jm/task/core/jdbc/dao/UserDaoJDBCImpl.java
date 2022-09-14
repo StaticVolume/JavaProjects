@@ -151,14 +151,19 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void removeUserById(long id) {
         try(PreparedStatement jdbcPrepareStatement = jdbcConnect.prepareStatement(SQL_DELETE_BY_ID)) {
-
+            jdbcConnect.setAutoCommit(false);
             jdbcPrepareStatement.setLong(1, id);
             jdbcPrepareStatement.executeUpdate();
-
+            jdbcConnect.commit();
             userDaoJDBCLogger.info("User with id = " + id + " was deleted , if id will exist");
         } catch (SQLException ex) {
-
             userDaoJDBCLogger.log(Level.SEVERE, ex.getMessage(), ex);
+            try {
+                jdbcConnect.rollback();
+            } catch (SQLException rollback) {
+                userDaoJDBCLogger.log(Level.SEVERE,rollback.getMessage(), rollback);
+                throw new RuntimeException(rollback);
+            }
             throw new RuntimeException(ex);
 
         }

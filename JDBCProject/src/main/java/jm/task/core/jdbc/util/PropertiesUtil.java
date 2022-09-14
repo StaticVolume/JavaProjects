@@ -1,6 +1,7 @@
 package jm.task.core.jdbc.util;
 
 import java.io.*;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,6 +19,10 @@ public final class PropertiesUtil {
     }
     public static String getByKey(String key){
         return properties.getProperty(key);
+    }
+
+    public static Properties getProperties() {
+        return  properties;
     }
     private static void  loadProperties()  {
         try ( FileReader reader = new FileReader(new File("src/main/resources/application.properties"))) {
