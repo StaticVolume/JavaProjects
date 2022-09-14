@@ -23,33 +23,17 @@ public final class Util {
     private static Connection dbConnection;
 
     private static SessionFactory sessionFactory;
-    /** Константа - флаг, определяющий, будет приложение работатать напрямую с использованием JDBC
-     * или с использованием HIBERNATE*/
-    private static Boolean USE_HIBERNATE_KEY = true;
+
     /**********************************************/
-    /** Общие для для Hibernate и JDBC  константы */
     private static final Logger dbConnectionLog = Logger.getLogger(Util.class.getName());
     private static final String DBUSERNAME_KEY = "hibernate.connection.username";
     private static final String DBPASSWORD_KEY = "hibernate.connection.password";
     private static final String DBURL_KEY = "hibernate.connection.url";
-
+    
     /*************************************************/
-
-    /** Константы для настройки Hibernate */
-
-    private static final String HIBERNATE_CONNECTION_CLASS_DRIVER_KEY = "hibernate.driver_class";
-
-    private static final String HIBERNATE_DIALECT_KEY = "hibernate.dialect";
-
-    private static final String HIBERNATE_SHOW_SQL_KEY = "hibernate.show_sql";
-
-    private static final String HIBERNATE_CURRENT_SESSION_CONTEXT_KEY = "hibernate.current_session_context_class";
-
-    /**********************************************************************/
     private Util () { // закрываем возможность создавать экземпляры класса
 
     }
-
     private static void createSessionFactory() {
         try {
             Configuration configuration = new Configuration()
