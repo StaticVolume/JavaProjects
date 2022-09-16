@@ -8,6 +8,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.loader.custom.sql.SQLCustomQuery;
 import org.hibernate.query.NativeQuery;
 
+import javax.transaction.Transactional;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
@@ -123,11 +124,8 @@ public class UserDaoHibernateImpl implements UserDao {
     @Override
     public List<User> getAllUsers() {
         List<User> users = null;
-        try (Session session = sessionFactory.getCurrentSession()) {
-            session.beginTransaction();
-            users = session.createQuery("FROM User").stream().toList();
-            session.getTransaction().commit();
-
+        try (Session session = sessionFactory.openSession()) {
+            users = session.createQuery("FROM User").getResultList();
         }
         userDaoHibernateLog.info("Get all users : " + users);
         return users;

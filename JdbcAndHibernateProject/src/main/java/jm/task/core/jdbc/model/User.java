@@ -1,6 +1,7 @@
 package jm.task.core.jdbc.model;
 
 import javax.persistence.*;
+import javax.transaction.Transactional;
 
 
 @Entity

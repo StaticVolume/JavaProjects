@@ -2,8 +2,8 @@ package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
 
+import javax.transaction.Transactional;
 import java.util.List;
-
 public interface UserDao {
     void createUsersTable();
 
